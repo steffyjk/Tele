@@ -1,12 +1,14 @@
 "use client";
 import { Button, Space, message } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useTelegramSocket } from "@/hooks/useTelegramSocket";
 
 export default function Header() {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [socketReady, setSocketReady] = useState(false);
+  useTelegramSocket(socketReady);
   const handleLoginWithQR = async () => {
     try {
       setLoading(true);
@@ -21,6 +23,7 @@ export default function Header() {
       localStorage.setItem("session_id", data.session_id);
       setQrUrl(data.qr_url);
       message.success("QR Code loaded. Please scan with Telegram app.");
+      setSocketReady(true);
     } catch (error) {
       console.error(error);
       message.error("Error fetching QR code.");
@@ -52,7 +55,7 @@ export default function Header() {
 
       {qrUrl && (
         <div className="mt-10">
-          <QRCodeCanvas value={qrUrl} size={220} className="ml-7"/>
+          <QRCodeCanvas value={qrUrl} size={220} className="ml-7" />
           <br></br>
           <p className="mt-4 text-gray-600 text-sm text-center">
             Scan this with your Telegram app to login.
